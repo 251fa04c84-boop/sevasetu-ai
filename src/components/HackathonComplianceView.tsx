@@ -68,8 +68,8 @@ const COMPLIANCE_REGISTER: ComplianceItem[] = [
     requirement: '4. Public Source Code & Open-Source License',
     officialRule: 'Source code must be published publicly under an accepted open-source license (MIT or Apache-2.0).',
     source: 'Code for India Open-Source Policy',
-    sourceUrl: 'https://github.com/karlmehta/code-for-a-billion',
-    implementation: 'Licensed under Apache-2.0 with standard LICENSE file and SPDX headers across all repository components.',
+    sourceUrl: 'https://github.com/251fa04c84-boop/sevasetu-ai',
+    implementation: 'Published under Apache-2.0 at github.com/251fa04c84-boop/sevasetu-ai with standard LICENSE file and SPDX headers.',
     status: 'VERIFIED',
     statusLabel: 'VERIFIED (APACHE-2.0)',
     badgeColor: 'text-emerald-700 bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800'

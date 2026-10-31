@@ -1,10 +1,11 @@
 # SevaSetu AI — Bharat Agentic Frontline Care Digital Public Good (DPG)
 
-[![CI Build & Test](https://github.com/codeforindia/sevasetu-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/codeforindia/sevasetu-ai/actions)
+[![CI Build & Test](https://github.com/251fa04c84-boop/sevasetu-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/251fa04c84-boop/sevasetu-ai/actions)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Google%20Cloud%20Run-emerald.svg)](https://ais-pre-qcigpqpl7wfjqjs3po5mro-358871292721.asia-northeast1.run.app)
 [![Hackathon: Code for a Billion 2026](https://img.shields.io/badge/Hackathon-Code%20for%20a%20Billion%202026-orange.svg)](https://codeforindia.org/hackathon)
 
+> **GitHub Repository:** [https://github.com/251fa04c84-boop/sevasetu-ai](https://github.com/251fa04c84-boop/sevasetu-ai)  
 > **Live Public URL:** [https://ais-pre-qcigpqpl7wfjqjs3po5mro-358871292721.asia-northeast1.run.app](https://ais-pre-qcigpqpl7wfjqjs3po5mro-358871292721.asia-northeast1.run.app)  
 > **Organizer:** Code for India | **Founder:** Karl Mehta  
 > **Official IDE:** AgentFoundry (`AgentFoundry.me`)  
@@ -81,7 +82,7 @@ India has over **1.04 million Accredited Social Health Activists (ASHA)** and **
 
 ```bash
 # Clone the repository
-git clone https://github.com/codeforindia/sevasetu-ai.git
+git clone https://github.com/251fa04c84-boop/sevasetu-ai.git
 cd sevasetu-ai
 
 # Install dependencies
