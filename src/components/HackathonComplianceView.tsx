@@ -340,51 +340,6 @@ export const HackathonComplianceView: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* 3-Minute Judge Video Plan & Reproduction Script */}
-      <div className="bg-slate-900 text-slate-100 rounded-2xl p-6 sm:p-8 border border-slate-800">
-        <h3 className="text-base font-bold text-white mb-2 flex items-center gap-2">
-          <Play className="w-4 h-4 text-emerald-400" />
-          <span>3-Minute Live Video Demonstration Script (Competition Structure)</span>
-        </h3>
-        <p className="text-xs text-slate-400 mb-6">
-          Script mapping every segment to actual working features in the interface for the November 15 video submission:
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-          <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-700">
-            <span className="font-mono text-emerald-400 font-bold block mb-1">0:00 – 0:45</span>
-            <span className="font-semibold text-white block mb-1">The Public Health Crisis</span>
-            <p className="text-slate-300 text-[11px] leading-relaxed">
-              Show ASHA field realities in Shivgarh. Explain how 34% dropouts occur between Pentavalent & MR-1 vaccines, and manual paperwork steals 38% of field time.
-            </p>
-          </div>
-
-          <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-700">
-            <span className="font-mono text-emerald-400 font-bold block mb-1">0:45 – 1:30</span>
-            <span className="font-semibold text-white block mb-1">Agentic Protocol Grounding</span>
-            <p className="text-slate-300 text-[11px] leading-relaxed">
-              Input Sunita Devi (28w pregnant with headache & pedal edema). Show live MoHFW PMSMA protocol retrieval, zero hallucination, and red-flag danger triage.
-            </p>
-          </div>
-
-          <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-700">
-            <span className="font-mono text-emerald-400 font-bold block mb-1">1:30 – 2:20</span>
-            <span className="font-semibold text-white block mb-1">Human-in-the-Loop & Tool Execution</span>
-            <p className="text-slate-300 text-[11px] leading-relaxed">
-              Show ASHA worker review gate. Authorize emergency PHC alert, generate QR-verified Hindi care slip, and sync FHIR CarePlan to xSpan CareHub.
-            </p>
-          </div>
-
-          <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-700">
-            <span className="font-mono text-emerald-400 font-bold block mb-1">2:20 – 3:00</span>
-            <span className="font-semibold text-white block mb-1">Proven Impact & Open Source</span>
-            <p className="text-slate-300 text-[11px] leading-relaxed">
-              Show SHA-256 audit ledger, 96 prevented dropouts, 168.5 paperwork hours saved, Apache-2.0 open source repository, and close on Bharat scale.
-            </p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
