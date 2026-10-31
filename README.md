@@ -1,10 +1,15 @@
 # SevaSetu AI — Bharat Agentic Frontline Care Digital Public Good (DPG)
 
-> **Code for a Billion — Bharat Agentic-AI Hackathon 2026**  
+[![CI Build & Test](https://github.com/codeforindia/sevasetu-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/codeforindia/sevasetu-ai/actions)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Google%20Cloud%20Run-emerald.svg)](https://ais-pre-qcigpqpl7wfjqjs3po5mro-358871292721.asia-northeast1.run.app)
+[![Hackathon: Code for a Billion 2026](https://img.shields.io/badge/Hackathon-Code%20for%20a%20Billion%202026-orange.svg)](https://codeforindia.org/hackathon)
+
+> **Live Public URL:** [https://ais-pre-qcigpqpl7wfjqjs3po5mro-358871292721.asia-northeast1.run.app](https://ais-pre-qcigpqpl7wfjqjs3po5mro-358871292721.asia-northeast1.run.app)  
 > **Organizer:** Code for India | **Founder:** Karl Mehta  
-> **Official IDE:** AgentFoundry (AgentFoundry.me)  
+> **Official IDE:** AgentFoundry (`AgentFoundry.me`)  
 > **Sponsor Category:** Best xSpan CareHub Integration & Best Use of AgentFoundry Agents  
-> **License:** Apache-2.0  
+> **Deadline:** November 15, 2026 | **Winner Announcement:** December 5, 2026, New Delhi  
 
 ---
 
