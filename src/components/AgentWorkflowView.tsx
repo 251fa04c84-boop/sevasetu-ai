@@ -24,7 +24,11 @@ import {
   QrCode,
   Volume2,
   VolumeX,
-  CheckCheck
+  CheckCheck,
+  Mic,
+  MicOff,
+  Activity,
+  Layers
 } from 'lucide-react';
 import { Beneficiary, AgentAnalysisPlan, PlannedToolAction, Language } from '../types';
 import { requestAgentAnalysis, executeApprovedTool, syncWithCareHub } from '../services/api';
@@ -39,6 +43,23 @@ interface AgentWorkflowViewProps {
   onOpenCareSlip: (plan: AgentAnalysisPlan) => void;
   onAuditLogUpdate: () => void;
 }
+
+const WORKFLOW_STEPS = [
+  { num: 1, name: 'Need Intake', desc: 'Frontline observation ingestion' },
+  { num: 2, name: 'Context Fusion', desc: 'Patient history & ABHA assembly' },
+  { num: 3, name: 'MoHFW Protocol', desc: 'Authoritative NHM guidelines retrieval' },
+  { num: 4, name: 'Rule Verification', desc: 'Clinical safety boundary audit' },
+  { num: 5, name: 'Triage Grade', desc: 'Green / Amber / Red risk categorization' },
+  { num: 6, name: 'Care Planning', desc: 'Multi-step action sequencing' },
+  { num: 7, name: 'Protocol Citation', desc: 'NHM & UIP directive grounding' },
+  { num: 8, name: 'Tool Staging', desc: 'Alerts, schedules & slips staged' },
+  { num: 9, name: 'Human Gate', desc: 'ASHA worker mandatory authorization' },
+  { num: 10, name: 'Tool Execution', desc: 'SMS/WhatsApp & roster commit' },
+  { num: 11, name: 'Outcome Verify', desc: 'Dispatch & schema validation' },
+  { num: 12, name: 'Roster Sync', desc: 'ABDM CarePlan index update' },
+  { num: 13, name: 'SHA-256 Ledger', desc: 'Immutable cryptographic hash' },
+  { num: 14, name: 'Feedback Loop', desc: 'Dynamic re-evaluation' }
+];
 
 export const AgentWorkflowView: React.FC<AgentWorkflowViewProps> = ({
   selectedBeneficiary,
@@ -86,10 +107,11 @@ export const AgentWorkflowView: React.FC<AgentWorkflowViewProps> = ({
   const [executionLogs, setExecutionLogs] = useState<Record<string, any>>({});
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isExecutingAll, setIsExecutingAll] = useState(false);
+  const [isListeningMic, setIsListeningMic] = useState(false);
+  const [showFullStepDetails, setShowFullStepDetails] = useState(false);
 
   // Update encounter note when language changes if currently showing default preset
   useEffect(() => {
-    // If the note matches one of the previous preset notes, update it to the new language
     const currentIsPreset = presetScenarios.some(p => p.beneficiaryId === selectedBeneficiary.id);
     if (currentIsPreset) {
       const match = presetScenarios.find(p => p.beneficiaryId === selectedBeneficiary.id);
@@ -167,6 +189,41 @@ export const AgentWorkflowView: React.FC<AgentWorkflowViewProps> = ({
     window.speechSynthesis.speak(utterance);
   };
 
+  const handleToggleMic = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Speech recognition is not supported in this browser. You can type or select one of the high-stakes presets.');
+      return;
+    }
+
+    if (isListeningMic) {
+      setIsListeningMic(false);
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = language === 'hi' ? 'hi-IN' : 'en-IN';
+      recognition.interimResults = false;
+      recognition.continuous = false;
+
+      recognition.onstart = () => setIsListeningMic(true);
+      recognition.onend = () => setIsListeningMic(false);
+      recognition.onerror = () => setIsListeningMic(false);
+
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        if (transcript) {
+          setEncounterNote((prev) => (prev ? `${prev} ${transcript}` : transcript));
+        }
+      };
+
+      recognition.start();
+    } catch {
+      setIsListeningMic(false);
+    }
+  };
+
   const handleApproveAction = async (action: PlannedToolAction) => {
     setActionStatuses((prev) => ({ ...prev, [action.id]: 'executing' }));
     setActiveStepIndex(10);
@@ -220,9 +277,76 @@ export const AgentWorkflowView: React.FC<AgentWorkflowViewProps> = ({
       <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-xl p-4 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-3 shadow-2xs">
         <ShieldCheck className="w-4 h-4 text-amber-700 dark:text-amber-400 shrink-0 mt-0.5" />
         <div>
-          <span className="font-semibold block mb-0.5">National Health Mission (MoHFW) Non-Diagnostic Boundary</span>
+          <span className="font-bold block mb-0.5">National Health Mission (MoHFW) Non-Diagnostic Boundary</span>
           <span>{MOHFW_DISCLAIMER}</span>
         </div>
+      </div>
+
+      {/* 14-Step Agentic Architecture Stepper Tracker */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-xs">
+        <div className="flex items-center justify-between gap-4 mb-3">
+          <div className="flex items-center gap-2">
+            <Activity className="w-4 h-4 text-emerald-600" />
+            <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+              14-Step Agentic Pipeline Architecture
+            </span>
+          </div>
+          <button
+            onClick={() => setShowFullStepDetails(prev => !prev)}
+            className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer"
+          >
+            {showFullStepDetails ? 'Collapse Steps' : 'View All 14 Steps'}
+          </button>
+        </div>
+
+        {/* Horizontal Mini Step Badges */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+          {WORKFLOW_STEPS.slice(0, 7).map((step) => {
+            const isCompleted = activeStepIndex >= step.num;
+            const isCurrent = activeStepIndex === step.num;
+
+            return (
+              <div
+                key={step.num}
+                className={`p-2 rounded-lg border text-center transition-all ${
+                  isCurrent
+                    ? 'bg-emerald-600 text-white border-emerald-600 font-bold shadow-xs'
+                    : isCompleted
+                    ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-900 dark:text-emerald-200 border-emerald-300 dark:border-emerald-800 font-medium'
+                    : 'bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-200 dark:border-slate-700 text-[11px]'
+                }`}
+              >
+                <div className="text-[10px] uppercase font-mono tracking-wider">Step {step.num}</div>
+                <div className="text-xs font-bold truncate">{step.name}</div>
+              </div>
+            );
+          })}
+        </div>
+
+        {showFullStepDetails && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 mt-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+            {WORKFLOW_STEPS.slice(7, 14).map((step) => {
+              const isCompleted = activeStepIndex >= step.num;
+              const isCurrent = activeStepIndex === step.num;
+
+              return (
+                <div
+                  key={step.num}
+                  className={`p-2 rounded-lg border text-center transition-all ${
+                    isCurrent
+                      ? 'bg-emerald-600 text-white border-emerald-600 font-bold shadow-xs'
+                      : isCompleted
+                      ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-900 dark:text-emerald-200 border-emerald-300 dark:border-emerald-800 font-medium'
+                      : 'bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-200 dark:border-slate-700 text-[11px]'
+                  }`}
+                >
+                  <div className="text-[10px] uppercase font-mono tracking-wider">Step {step.num}</div>
+                  <div className="text-xs font-bold truncate">{step.name}</div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Preset Scenario Selector for Evaluators & Frontline Workers */}
@@ -333,15 +457,31 @@ export const AgentWorkflowView: React.FC<AgentWorkflowViewProps> = ({
             </div>
           </div>
 
-          {/* Intake Note Input Form */}
+          {/* Intake Note Input Form with Voice Dictation */}
           <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
             <div className="flex items-center justify-between mb-2">
               <label htmlFor="encounter-notes" className="text-xs font-bold text-slate-800 dark:text-slate-200">
                 {t.encounterNotesLabel}
               </label>
-              <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-                {language.toUpperCase()} Input
-              </span>
+              <div className="flex items-center gap-2">
+                {/* Voice Dictation (Speech to Text) */}
+                <button
+                  type="button"
+                  onClick={handleToggleMic}
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-md transition-all cursor-pointer ${
+                    isListeningMic
+                      ? 'bg-red-600 text-white animate-pulse'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
+                  }`}
+                  title="Speak your observation (Hindi/English Voice Input)"
+                >
+                  {isListeningMic ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5 text-emerald-600" />}
+                  <span>{isListeningMic ? 'Listening...' : 'Voice Dictation'}</span>
+                </button>
+                <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                  {language.toUpperCase()}
+                </span>
+              </div>
             </div>
 
             <textarea
@@ -411,9 +551,9 @@ export const AgentWorkflowView: React.FC<AgentWorkflowViewProps> = ({
               {/* Triage & Assessment Banner with Voice TTS */}
               <div
                 className={`p-4 rounded-xl border ${
-                  currentPlan.triageLevel.includes('Red')
+                  currentPlan.triageLevel.includes('Red') || currentPlan.triageLevel.includes('लाल')
                     ? 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-900/60 text-red-900 dark:text-red-200'
-                    : currentPlan.triageLevel.includes('Amber')
+                    : currentPlan.triageLevel.includes('Amber') || currentPlan.triageLevel.includes('पीला')
                     ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-900/60 text-amber-900 dark:text-amber-200'
                     : 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900/60 text-emerald-900 dark:text-emerald-200'
                 }`}

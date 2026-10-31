@@ -12,7 +12,7 @@ import { ImpactDashboardView } from './components/ImpactDashboardView';
 import { HackathonComplianceView } from './components/HackathonComplianceView';
 import { BiLingualCareSlipModal } from './components/BiLingualCareSlipModal';
 import { NewEncounterModal } from './components/NewEncounterModal';
-import { DownloadZipModal } from './components/DownloadZipModal';
+import { NewBeneficiaryModal } from './components/NewBeneficiaryModal';
 import { INITIAL_BENEFICIARIES } from './data/mockBeneficiaries';
 import { Beneficiary, Language, AuditRecord, ImpactTelemetry, AgentAnalysisPlan } from './types';
 import { fetchAuditLogs, fetchImpactTelemetry, checkServerHealth } from './services/api';
@@ -21,11 +21,18 @@ import { getTranslations } from './i18n/translations';
 export default function App() {
   const [currentTab, setCurrentTab] = useState<string>('workflow');
   const [language, setLanguage] = useState<Language>('en');
-  const [beneficiaries, setBeneficiaries] = useState<Beneficiary[]>(INITIAL_BENEFICIARIES);
+  const [beneficiaries, setBeneficiaries] = useState<Beneficiary[]>(() => {
+    try {
+      const stored = localStorage.getItem('sevasetu_beneficiaries');
+      return stored ? JSON.parse(stored) : INITIAL_BENEFICIARIES;
+    } catch {
+      return INITIAL_BENEFICIARIES;
+    }
+  });
   const [selectedBeneficiary, setSelectedBeneficiary] = useState<Beneficiary>(INITIAL_BENEFICIARIES[0]);
   const [activePlanForCareSlip, setActivePlanForCareSlip] = useState<AgentAnalysisPlan | null>(null);
   const [isEncounterModalOpen, setIsEncounterModalOpen] = useState(false);
-  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+  const [isNewBeneficiaryModalOpen, setIsNewBeneficiaryModalOpen] = useState(false);
   const [auditLogs, setAuditLogs] = useState<AuditRecord[]>([]);
   const [telemetry, setTelemetry] = useState<ImpactTelemetry>({
     totalBeneficiariesTracked: 1420,
@@ -79,6 +86,20 @@ export default function App() {
     setCurrentTab('workflow');
   };
 
+  const handleAddBeneficiary = (newB: Beneficiary) => {
+    const updated = [newB, ...beneficiaries];
+    setBeneficiaries(updated);
+    try {
+      localStorage.setItem('sevasetu_beneficiaries', JSON.stringify(updated));
+    } catch {}
+    setSelectedBeneficiary(newB);
+    setCurrentTab('workflow');
+  };
+
+  const handleToggleSimulatedOffline = () => {
+    setIsOnline((prev) => !prev);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col antialiased">
       {/* Top Bar with Language Selector and Primary Action */}
@@ -89,7 +110,7 @@ export default function App() {
         onLanguageChange={setLanguage}
         onNewEncounter={() => setIsEncounterModalOpen(true)}
         isOnline={isOnline}
-        onOpenDownloadModal={() => setIsDownloadModalOpen(true)}
+        onToggleOffline={handleToggleSimulatedOffline}
       />
 
       {/* Main Content Area */}
@@ -98,7 +119,7 @@ export default function App() {
           <BeneficiaryList
             beneficiaries={beneficiaries}
             onSelectBeneficiary={handleSelectBeneficiaryFromList}
-            onOpenNewModal={() => setIsEncounterModalOpen(true)}
+            onOpenNewModal={() => setIsNewBeneficiaryModalOpen(true)}
             language={language}
           />
         )}
@@ -146,13 +167,15 @@ export default function App() {
         language={language}
       />
 
-      {/* Upgraded Source Code ZIP Download Modal (Accessible via Footer and Compliance tab) */}
-      <DownloadZipModal
-        isOpen={isDownloadModalOpen}
-        onClose={() => setIsDownloadModalOpen(false)}
+      {/* Register New Beneficiary Modal */}
+      <NewBeneficiaryModal
+        isOpen={isNewBeneficiaryModalOpen}
+        onClose={() => setIsNewBeneficiaryModalOpen(false)}
+        onAddBeneficiary={handleAddBeneficiary}
+        language={language}
       />
 
-      {/* Quiet Clean Footer (Zero telemetry tickers, plain legal/DPG attribution) */}
+      {/* Clean Legal & Attribution Footer (Zero Zip/Export clutter) */}
       <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-6 text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-2">
@@ -162,17 +185,12 @@ export default function App() {
             <span aria-hidden="true">·</span>
             <span>{t.appSubtitle}</span>
             <span aria-hidden="true">·</span>
-            <span>Apache-2.0 Open Source</span>
+            <span>Apache-2.0 Open Source Public Good</span>
             <span aria-hidden="true">·</span>
-            <button
-              onClick={() => setIsDownloadModalOpen(true)}
-              className="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline cursor-pointer"
-            >
-              Source Archive (.zip)
-            </button>
+            <span>MoHFW Clinical Protocol Grounding</span>
           </div>
           <div className="text-center sm:text-right text-[11px] text-slate-400">
-            <span>Code for a Billion 2026 · Code for India · AgentFoundry IDE</span>
+            <span>Code for India · Code for a Billion 2026 · AgentFoundry IDE</span>
           </div>
         </div>
       </footer>

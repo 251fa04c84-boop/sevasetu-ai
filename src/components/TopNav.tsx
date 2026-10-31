@@ -15,7 +15,7 @@ interface TopNavProps {
   onLanguageChange: (lang: Language) => void;
   onNewEncounter: () => void;
   isOnline: boolean;
-  onOpenDownloadModal?: () => void;
+  onToggleOffline?: () => void;
 }
 
 const LANGUAGES: { code: Language; label: string; native: string }[] = [
@@ -33,7 +33,8 @@ export const TopNav: React.FC<TopNavProps> = ({
   language,
   onLanguageChange,
   onNewEncounter,
-  isOnline
+  isOnline,
+  onToggleOffline
 }) => {
   const t = getTranslations(language);
 
@@ -45,22 +46,22 @@ export const TopNav: React.FC<TopNavProps> = ({
           <div className="flex items-center gap-3 shrink-0">
             <button 
               onClick={() => onSelectTab('workflow')}
-              className="text-left font-bold text-xl tracking-tight text-slate-900 dark:text-white whitespace-nowrap hover:opacity-90 transition-opacity"
+              className="text-left font-extrabold text-xl tracking-tight text-slate-900 dark:text-white whitespace-nowrap hover:opacity-90 transition-opacity cursor-pointer"
             >
               {t.appName}
             </button>
-            <span className="hidden sm:inline-block text-xs font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
+            <span className="hidden sm:inline-block text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
               {t.appSubtitle}
             </span>
           </div>
 
-          {/* Zone 2: Localized text navigation links */}
+          {/* Zone 2: Clean single-line text navigation links */}
           <nav className="hidden md:flex items-center gap-5 lg:gap-7 text-sm font-medium text-slate-600 dark:text-slate-300">
             <button
               onClick={() => onSelectTab('beneficiaries')}
-              className={`hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap shrink-0 pb-1 ${
+              className={`hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap shrink-0 pb-1 cursor-pointer ${
                 currentTab === 'beneficiaries'
-                  ? 'text-slate-950 dark:text-white font-semibold border-b-2 border-emerald-600'
+                  ? 'text-slate-950 dark:text-white font-bold border-b-2 border-emerald-600'
                   : ''
               }`}
             >
@@ -68,9 +69,9 @@ export const TopNav: React.FC<TopNavProps> = ({
             </button>
             <button
               onClick={() => onSelectTab('workflow')}
-              className={`hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap shrink-0 pb-1 ${
+              className={`hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap shrink-0 pb-1 cursor-pointer ${
                 currentTab === 'workflow'
-                  ? 'text-slate-950 dark:text-white font-semibold border-b-2 border-emerald-600'
+                  ? 'text-slate-950 dark:text-white font-bold border-b-2 border-emerald-600'
                   : ''
               }`}
             >
@@ -78,9 +79,9 @@ export const TopNav: React.FC<TopNavProps> = ({
             </button>
             <button
               onClick={() => onSelectTab('audit')}
-              className={`hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap shrink-0 pb-1 ${
+              className={`hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap shrink-0 pb-1 cursor-pointer ${
                 currentTab === 'audit'
-                  ? 'text-slate-950 dark:text-white font-semibold border-b-2 border-emerald-600'
+                  ? 'text-slate-950 dark:text-white font-bold border-b-2 border-emerald-600'
                   : ''
               }`}
             >
@@ -88,9 +89,9 @@ export const TopNav: React.FC<TopNavProps> = ({
             </button>
             <button
               onClick={() => onSelectTab('impact')}
-              className={`hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap shrink-0 pb-1 ${
+              className={`hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap shrink-0 pb-1 cursor-pointer ${
                 currentTab === 'impact'
-                  ? 'text-slate-950 dark:text-white font-semibold border-b-2 border-emerald-600'
+                  ? 'text-slate-950 dark:text-white font-bold border-b-2 border-emerald-600'
                   : ''
               }`}
             >
@@ -98,9 +99,9 @@ export const TopNav: React.FC<TopNavProps> = ({
             </button>
             <button
               onClick={() => onSelectTab('compliance')}
-              className={`hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap shrink-0 pb-1 ${
+              className={`hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap shrink-0 pb-1 cursor-pointer ${
                 currentTab === 'compliance'
-                  ? 'text-slate-950 dark:text-white font-semibold border-b-2 border-emerald-600'
+                  ? 'text-slate-950 dark:text-white font-bold border-b-2 border-emerald-600'
                   : ''
               }`}
             >
@@ -110,23 +111,25 @@ export const TopNav: React.FC<TopNavProps> = ({
 
           {/* Zone 3: Primary action & controls */}
           <div className="flex items-center gap-3 shrink-0">
-            {/* Network indicator */}
-            <div 
-              title={isOnline ? 'Network Connected (Server Active)' : 'Offline Mode (Local Rule Cache Active)'}
-              className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-md"
+            {/* Interactive Network / Offline Mode Simulator */}
+            <button
+              onClick={onToggleOffline}
+              type="button"
+              title={isOnline ? 'Network Connected. Click to test rural offline mode simulation' : 'Offline Mode active (Local MoHFW Rules Engine). Click to reconnect'}
+              className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-lg border transition-all cursor-pointer shadow-2xs"
             >
               {isOnline ? (
-                <>
+                <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800 px-2 py-0.5 rounded">
                   <Wifi className="w-3.5 h-3.5 text-emerald-600" />
                   <span className="hidden lg:inline">{t.statusOnline}</span>
-                </>
+                </div>
               ) : (
-                <>
+                <div className="flex items-center gap-1.5 text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 border-amber-200 dark:border-amber-800 px-2 py-0.5 rounded">
                   <WifiOff className="w-3.5 h-3.5 text-amber-600" />
                   <span className="hidden lg:inline">{t.statusOffline}</span>
-                </>
+                </div>
               )}
-            </div>
+            </button>
 
             {/* Language Selector */}
             <div className="relative flex items-center">
@@ -135,7 +138,7 @@ export const TopNav: React.FC<TopNavProps> = ({
                 value={language}
                 onChange={(e) => onLanguageChange(e.target.value as Language)}
                 aria-label="Select Interface Language"
-                className="pl-8 pr-3 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 focus:ring-2 focus:ring-emerald-500 cursor-pointer transition-colors shadow-2xs"
+                className="pl-8 pr-3 py-1.5 text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 focus:ring-2 focus:ring-emerald-500 cursor-pointer transition-colors shadow-2xs"
               >
                 {LANGUAGES.map((l) => (
                   <option key={l.code} value={l.code}>
@@ -145,10 +148,10 @@ export const TopNav: React.FC<TopNavProps> = ({
               </select>
             </div>
 
-            {/* Primary Log Encounter Action */}
+            {/* Primary Action Button */}
             <button
               onClick={onNewEncounter}
-              className="px-3.5 py-1.5 text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 rounded-lg shadow-sm transition-colors whitespace-nowrap cursor-pointer"
+              className="px-3.5 py-1.5 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 rounded-lg shadow-sm transition-colors whitespace-nowrap cursor-pointer"
             >
               {t.btnLogEncounter}
             </button>
@@ -159,31 +162,31 @@ export const TopNav: React.FC<TopNavProps> = ({
         <div className="flex md:hidden overflow-x-auto gap-3 py-2 border-t border-slate-100 dark:border-slate-800 text-xs items-center">
           <button
             onClick={() => onSelectTab('beneficiaries')}
-            className={`whitespace-nowrap px-2.5 py-1 rounded-md ${currentTab === 'beneficiaries' ? 'font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'text-slate-600 dark:text-slate-300'}`}
+            className={`whitespace-nowrap px-2.5 py-1 rounded-md cursor-pointer ${currentTab === 'beneficiaries' ? 'font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'text-slate-600 dark:text-slate-300'}`}
           >
             {t.tabRegistry}
           </button>
           <button
             onClick={() => onSelectTab('workflow')}
-            className={`whitespace-nowrap px-2.5 py-1 rounded-md ${currentTab === 'workflow' ? 'font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'text-slate-600 dark:text-slate-300'}`}
+            className={`whitespace-nowrap px-2.5 py-1 rounded-md cursor-pointer ${currentTab === 'workflow' ? 'font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'text-slate-600 dark:text-slate-300'}`}
           >
             {t.tabWorkflow}
           </button>
           <button
             onClick={() => onSelectTab('audit')}
-            className={`whitespace-nowrap px-2.5 py-1 rounded-md ${currentTab === 'audit' ? 'font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'text-slate-600 dark:text-slate-300'}`}
+            className={`whitespace-nowrap px-2.5 py-1 rounded-md cursor-pointer ${currentTab === 'audit' ? 'font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'text-slate-600 dark:text-slate-300'}`}
           >
             {t.tabAudit}
           </button>
           <button
             onClick={() => onSelectTab('impact')}
-            className={`whitespace-nowrap px-2.5 py-1 rounded-md ${currentTab === 'impact' ? 'font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'text-slate-600 dark:text-slate-300'}`}
+            className={`whitespace-nowrap px-2.5 py-1 rounded-md cursor-pointer ${currentTab === 'impact' ? 'font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'text-slate-600 dark:text-slate-300'}`}
           >
             {t.tabImpact}
           </button>
           <button
             onClick={() => onSelectTab('compliance')}
-            className={`whitespace-nowrap px-2.5 py-1 rounded-md ${currentTab === 'compliance' ? 'font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'text-slate-600 dark:text-slate-300'}`}
+            className={`whitespace-nowrap px-2.5 py-1 rounded-md cursor-pointer ${currentTab === 'compliance' ? 'font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'text-slate-600 dark:text-slate-300'}`}
           >
             {t.tabCompliance}
           </button>
