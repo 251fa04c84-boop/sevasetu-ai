@@ -4,23 +4,41 @@
  */
 
 import React, { useState } from 'react';
-import { Search, UserCheck, AlertTriangle, Clock, ArrowRight, Shield, HeartPulse } from 'lucide-react';
-import { Beneficiary } from '../types';
+import { Search, UserCheck, AlertTriangle, Clock, ArrowRight, Shield, HeartPulse, UserPlus } from 'lucide-react';
+import { Beneficiary, Language } from '../types';
+import { getTranslations } from '../i18n/translations';
 
 interface BeneficiaryListProps {
   beneficiaries: Beneficiary[];
   onSelectBeneficiary: (b: Beneficiary) => void;
   onOpenNewModal: () => void;
+  language: Language;
 }
 
 export const BeneficiaryList: React.FC<BeneficiaryListProps> = ({
   beneficiaries,
   onSelectBeneficiary,
-  onOpenNewModal
+  onOpenNewModal,
+  language
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [riskFilter, setRiskFilter] = useState('All');
+
+  const t = getTranslations(language);
+
+  const getCategoryLabel = (cat: string) => {
+    if (cat.includes('Maternal')) return t.maternalCategory;
+    if (cat.includes('Immunization')) return t.childCategory;
+    if (cat.includes('Tuberculosis') || cat.includes('Nikshay')) return t.tbCategory;
+    return t.seniorCategory;
+  };
+
+  const getRiskLabel = (risk: string) => {
+    if (risk === 'High Risk') return t.riskHigh;
+    if (risk === 'Attention') return t.riskAttention;
+    return t.riskStandard;
+  };
 
   const filtered = beneficiaries.filter((b) => {
     const matchesSearch =
@@ -42,35 +60,35 @@ export const BeneficiaryList: React.FC<BeneficiaryListProps> = ({
           <div className="lg:col-span-7 p-6 sm:p-8 flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs uppercase tracking-wider text-emerald-400 font-semibold">
-                  Bharat Frontline Healthcare Digital Public Good
+                <span className="text-xs uppercase tracking-wider text-emerald-400 font-bold">
+                  {t.appSubtitle}
                 </span>
                 <span className="text-[11px] text-slate-400 font-mono">
-                  · Synthetic Demo Cohort
+                  · Shivgarh Cohort
                 </span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-3 text-balance">
-                Community Health Worker & Citizen Follow-up Registry
+                {t.registryHeroTitle}
               </h1>
               <p className="text-sm text-slate-300 leading-relaxed mb-6 max-w-xl">
-                Demonstrating assistive decision support for India's 1.04 million ASHA workers with verified MoHFW protocol grounding, non-diagnostic triage, and auditable care coordination.
+                {t.registryHeroSubtitle}
               </p>
             </div>
 
             {/* Quick KPI Strip */}
             <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-800 text-xs">
               <div>
-                <span className="block text-slate-400">Village Sub-centre</span>
-                <span className="font-semibold text-slate-100">Shivgarh PHC (Simulated)</span>
+                <span className="block text-slate-400">{t.registryHeroKpiSubcentre}</span>
+                <span className="font-semibold text-slate-100">Shivgarh PHC</span>
               </div>
               <div>
-                <span className="block text-slate-400">Assigned ASHA</span>
-                <span className="font-semibold text-slate-100">Shanti Meena (Demo Role)</span>
+                <span className="block text-slate-400">{t.registryHeroKpiAsha}</span>
+                <span className="font-semibold text-slate-100">Shanti Meena (ASHA-04)</span>
               </div>
               <div>
-                <span className="block text-slate-400">Synthetic Roster</span>
+                <span className="block text-slate-400">{t.registryHeroKpiTotal}</span>
                 <span className="font-semibold text-emerald-400 font-mono tabular-nums">
-                  {beneficiaries.length} Fictitious Personas
+                  {beneficiaries.length} Active Records
                 </span>
               </div>
             </div>
@@ -83,9 +101,9 @@ export const BeneficiaryList: React.FC<BeneficiaryListProps> = ({
               referrerPolicy="no-referrer"
               className="w-full h-full object-cover object-center"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-4">
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent flex items-end p-4">
               <span className="text-xs text-slate-300 font-medium">
-                Photo: ASHA field session in Bikaner district, Rajasthan
+                Photo: Frontline community health session, National Health Mission
               </span>
             </div>
           </div>
@@ -99,47 +117,68 @@ export const BeneficiaryList: React.FC<BeneficiaryListProps> = ({
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
-            placeholder="Search by name, village, or ABHA ID..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            placeholder={t.searchPlaceholder}
+            className="w-full pl-9 pr-4 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
         </div>
 
-        {/* Category Filter Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto p-1 bg-slate-100 dark:bg-slate-800/60 rounded-lg">
-          {['All', 'Maternal', 'Immunization', 'Tuberculosis', 'Senior'].map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setCategoryFilter(cat)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap shrink-0 ${
-                categoryFilter === cat
-                  ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs font-semibold'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-              }`}
-            >
-              {cat === 'All' ? 'All Programs' : cat}
-            </button>
-          ))}
+        {/* Filter Dropdowns & New Citizen Button */}
+        <div className="flex flex-wrap items-center gap-2">
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            aria-label="Filter by Category"
+            className="px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+          >
+            <option value="All">{t.filterAllCategories}</option>
+            <option value="Maternal">{t.maternalCategory}</option>
+            <option value="Immunization">{t.childCategory}</option>
+            <option value="Tuberculosis">{t.tbCategory}</option>
+            <option value="Senior">{t.seniorCategory}</option>
+          </select>
+
+          <select
+            value={riskFilter}
+            onChange={(e) => setRiskFilter(e.target.value)}
+            aria-label="Filter by Risk Priority"
+            className="px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+          >
+            <option value="All">{t.filterAllRisks}</option>
+            <option value="High Risk">{t.riskHigh}</option>
+            <option value="Attention">{t.riskAttention}</option>
+            <option value="Standard">{t.riskStandard}</option>
+          </select>
+
+          <button
+            onClick={onOpenNewModal}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 rounded-lg shadow-sm transition-colors whitespace-nowrap cursor-pointer"
+          >
+            <UserPlus className="w-3.5 h-3.5" />
+            <span>{t.btnRegisterNew}</span>
+          </button>
         </div>
       </div>
 
-      {/* Registry Table / Card Grid */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs">
+      {/* Beneficiary Table */}
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-slate-50 dark:bg-slate-800/50 text-xs font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-800">
               <tr>
-                <th className="py-3 px-4">Beneficiary & ABHA ID</th>
-                <th className="py-3 px-4">Program & Village</th>
-                <th className="py-3 px-4">Status & Risk</th>
-                <th className="py-3 px-4">Next Scheduled Date</th>
-                <th className="py-3 px-4 text-right">Agentic Action</th>
+                <th className="py-3 px-4">{t.colName}</th>
+                <th className="py-3 px-4">{t.colAgeGender}</th>
+                <th className="py-3 px-4">{t.colCategory}</th>
+                <th className="py-3 px-4">{t.colVillagePhc}</th>
+                <th className="py-3 px-4">{t.colRisk}</th>
+                <th className="py-3 px-4">{t.colNextAction}</th>
+                <th className="py-3 px-4 text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-200">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
               {filtered.map((b) => {
-                const isHighRisk = b.riskStatus === 'High Risk';
+                const isHigh = b.riskStatus === 'High Risk';
                 const isAttention = b.riskStatus === 'Attention';
 
                 return (
@@ -147,79 +186,68 @@ export const BeneficiaryList: React.FC<BeneficiaryListProps> = ({
                     key={b.id}
                     className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors"
                   >
-                    <td className="py-3.5 px-4">
-                      <div className="font-semibold text-slate-900 dark:text-white">
-                        {b.name}
+                    <td className="py-3.5 px-4 font-semibold text-slate-900 dark:text-white">
+                      <div className="flex flex-col">
+                        <span className="font-bold text-sm">{b.name}</span>
+                        <span className="text-[11px] font-mono text-slate-400">
+                          ABHA: {b.abhaId || 'Pending'}
+                        </span>
                       </div>
-                      <div className="text-xs text-slate-500 font-mono tabular-nums flex items-center gap-1.5 mt-0.5">
-                        <span>ABHA: {b.abhaId || 'Pending e-KYC'}</span>
-                        <span aria-hidden="true">·</span>
-                        <span>Age {b.age}y</span>
-                      </div>
+                    </td>
+
+                    <td className="py-3.5 px-4 whitespace-nowrap">
+                      <span>{b.age} yrs</span>
+                      <span className="text-slate-400"> · {b.gender}</span>
+                    </td>
+
+                    <td className="py-3.5 px-4 whitespace-nowrap">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                        {getCategoryLabel(b.category)}
+                      </span>
                     </td>
 
                     <td className="py-3.5 px-4">
-                      <div className="font-medium text-slate-800 dark:text-slate-200">
-                        {b.category}
-                      </div>
-                      <div className="text-xs text-slate-500 mt-0.5">
-                        {b.village}
+                      <div className="text-slate-900 dark:text-slate-100">{b.village}</div>
+                      <div className="text-[11px] text-slate-400">{b.phcCenter}</div>
+                    </td>
+
+                    <td className="py-3.5 px-4 whitespace-nowrap">
+                      <span
+                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-semibold border ${
+                          isHigh
+                            ? 'text-red-700 bg-red-50 dark:bg-red-950/60 border-red-200 dark:border-red-900/60'
+                            : isAttention
+                            ? 'text-amber-700 bg-amber-50 dark:bg-amber-950/60 border-amber-200 dark:border-amber-900/60'
+                            : 'text-emerald-700 bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-900/60'
+                        }`}
+                      >
+                        {isHigh && <AlertTriangle className="w-3 h-3 text-red-600" />}
+                        {isAttention && <Clock className="w-3 h-3 text-amber-600" />}
+                        {!isHigh && !isAttention && <UserCheck className="w-3 h-3 text-emerald-600" />}
+                        <span>{getRiskLabel(b.riskStatus)}</span>
+                      </span>
+                    </td>
+
+                    <td className="py-3.5 px-4 max-w-xs">
+                      <div className="truncate text-[11px] text-slate-600 dark:text-slate-400">
+                        {b.activeFollowUps && b.activeFollowUps[0]
+                          ? b.activeFollowUps[0]
+                          : 'Routine schedule on track'}
                       </div>
                     </td>
 
-                    <td className="py-3.5 px-4">
-                      <div className="flex items-center gap-2">
-                        {isHighRisk ? (
-                          <div className="flex items-center gap-1.5 text-xs font-semibold text-red-600 dark:text-red-400">
-                            <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                            <span>High Risk Danger Sign</span>
-                          </div>
-                        ) : isAttention ? (
-                          <div className="flex items-center gap-1.5 text-xs font-medium text-amber-700 dark:text-amber-400">
-                            <Clock className="w-3.5 h-3.5 shrink-0" />
-                            <span>Follow-up Due</span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1.5 text-xs text-emerald-700 dark:text-emerald-400">
-                            <UserCheck className="w-3.5 h-3.5 shrink-0" />
-                            <span>Routine Care</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="text-xs text-slate-500 mt-0.5">
-                        {b.activeFollowUps[0]}
-                      </div>
-                    </td>
-
-                    <td className="py-3.5 px-4 font-mono tabular-nums text-xs">
-                      <div className="font-medium text-slate-800 dark:text-slate-200">
-                        {b.nextScheduledDate}
-                      </div>
-                      <div className="text-slate-400 text-[11px]">
-                        Last: {b.lastVisitDate}
-                      </div>
-                    </td>
-
-                    <td className="py-3.5 px-4 text-right">
+                    <td className="py-3.5 px-4 text-right whitespace-nowrap">
                       <button
                         onClick={() => onSelectBeneficiary(b)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 rounded-lg hover:bg-emerald-100 transition-colors cursor-pointer"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:hover:bg-emerald-900/50 rounded-lg border border-emerald-200 dark:border-emerald-800 transition-colors cursor-pointer"
                       >
-                        <span>Start Agent Intake</span>
-                        <ArrowRight className="w-3 h-3" />
+                        <span>{t.btnStartTriage}</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
                       </button>
                     </td>
                   </tr>
                 );
               })}
-
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="py-12 text-center text-slate-400 text-sm">
-                    No beneficiaries match the selected filter. Try searching a different village or program.
-                  </td>
-                </tr>
-              )}
             </tbody>
           </table>
         </div>

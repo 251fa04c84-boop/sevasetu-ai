@@ -16,6 +16,7 @@ import { DownloadZipModal } from './components/DownloadZipModal';
 import { INITIAL_BENEFICIARIES } from './data/mockBeneficiaries';
 import { Beneficiary, Language, AuditRecord, ImpactTelemetry, AgentAnalysisPlan } from './types';
 import { fetchAuditLogs, fetchImpactTelemetry, checkServerHealth } from './services/api';
+import { getTranslations } from './i18n/translations';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState<string>('workflow');
@@ -37,6 +38,8 @@ export default function App() {
     offlineActionsBuffered: 0
   });
   const [isOnline, setIsOnline] = useState(true);
+
+  const t = getTranslations(language);
 
   const loadData = async () => {
     try {
@@ -78,7 +81,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col antialiased">
-      {/* Top Bar Contract (Wordmark, Nav links, Primary action) */}
+      {/* Top Bar with Language Selector and Primary Action */}
       <TopNav
         currentTab={currentTab}
         onSelectTab={setCurrentTab}
@@ -96,6 +99,7 @@ export default function App() {
             beneficiaries={beneficiaries}
             onSelectBeneficiary={handleSelectBeneficiaryFromList}
             onOpenNewModal={() => setIsEncounterModalOpen(true)}
+            language={language}
           />
         )}
 
@@ -111,11 +115,11 @@ export default function App() {
         )}
 
         {currentTab === 'audit' && (
-          <AuditLedgerView auditLogs={auditLogs} />
+          <AuditLedgerView auditLogs={auditLogs} language={language} />
         )}
 
         {currentTab === 'impact' && (
-          <ImpactDashboardView telemetry={telemetry} />
+          <ImpactDashboardView telemetry={telemetry} language={language} />
         )}
 
         {currentTab === 'compliance' && (
@@ -139,9 +143,10 @@ export default function App() {
         onClose={() => setIsEncounterModalOpen(false)}
         beneficiaries={beneficiaries}
         onStartEncounter={handleStartCustomEncounter}
+        language={language}
       />
 
-      {/* Upgraded Source Code ZIP Download Modal */}
+      {/* Upgraded Source Code ZIP Download Modal (Accessible via Footer and Compliance tab) */}
       <DownloadZipModal
         isOpen={isDownloadModalOpen}
         onClose={() => setIsDownloadModalOpen(false)}
@@ -151,11 +156,11 @@ export default function App() {
       <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-6 text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-semibold text-slate-700 dark:text-slate-300">
-              SevaSetu AI
+            <span className="font-bold text-slate-800 dark:text-slate-200">
+              {t.appName}
             </span>
             <span aria-hidden="true">·</span>
-            <span>Bharat Agentic-AI Digital Public Good</span>
+            <span>{t.appSubtitle}</span>
             <span aria-hidden="true">·</span>
             <span>Apache-2.0 Open Source</span>
             <span aria-hidden="true">·</span>
@@ -163,7 +168,7 @@ export default function App() {
               onClick={() => setIsDownloadModalOpen(true)}
               className="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline cursor-pointer"
             >
-              Download Repo (.zip)
+              Source Archive (.zip)
             </button>
           </div>
           <div className="text-center sm:text-right text-[11px] text-slate-400">

@@ -91,16 +91,50 @@ function generateDeterministicPlan(beneficiary: any, note: string, language: str
   const isChild = beneficiary.category?.includes('Immunization') || note.toLowerCase().includes('vaccine') || note.toLowerCase().includes('dose');
   const isTB = beneficiary.category?.includes('Tuberculosis') || note.toLowerCase().includes('tb') || note.toLowerCase().includes('sputum');
 
-  let triageLevel = 'Green (Routine)';
-  let triageReasoning = 'Encounter details align with scheduled routine community follow-up protocol.';
+  const isHi = language === 'hi';
+
+  let triageLevel = isHi
+    ? 'लाल (उच्च जोखिम ट्रायज - तत्काल रेफरल)'
+    : 'Green (Routine)';
+  let triageReasoning = isHi
+    ? 'परामर्श विवरण निर्धारित नियमित सामुदायिक फॉलो-अप प्रोटोकॉल के अनुरूप हैं।'
+    : 'Encounter details align with scheduled routine community follow-up protocol.';
   const lowerNote = note.toLowerCase();
 
-  if (lowerNote.includes('severe') || lowerNote.includes('headache') || lowerNote.includes('swelling') || lowerNote.includes('fever') || lowerNote.includes('bleeding')) {
-    triageLevel = 'Red (High Risk Triage)';
-    triageReasoning = 'Beneficiary exhibits danger signs (edema, headache, or acute symptoms) matching MoHFW emergency escalation criteria.';
-  } else if (lowerNote.includes('missed') || lowerNote.includes('overdue') || lowerNote.includes('pain') || lowerNote.includes('nausea')) {
-    triageLevel = 'Amber (Follow-up Required)';
-    triageReasoning = 'Missed interval or discomfort reported; requires active intervention to prevent complete dropout.';
+  if (
+    lowerNote.includes('severe') ||
+    lowerNote.includes('headache') ||
+    lowerNote.includes('swelling') ||
+    lowerNote.includes('fever') ||
+    lowerNote.includes('bleeding') ||
+    note.includes('सिरदर्द') ||
+    note.includes('सूजन') ||
+    note.includes('चक्कर') ||
+    note.includes('बुखार')
+  ) {
+    triageLevel = isHi
+      ? 'लाल (उच्च जोखिम ट्रायज - तत्काल रेफरल)'
+      : 'Red (High Risk Triage)';
+    triageReasoning = isHi
+      ? 'नागरिक में स्वास्थ्य मंत्रालय (MoHFW) आपातकालीन प्राथमिक रेफरल मानदंडों के अनुसार खतरे के लक्षण (सूजन, सिरदर्द, या चक्कर) पाए गए हैं।'
+      : 'Beneficiary exhibits danger signs (edema, headache, or acute symptoms) matching MoHFW emergency escalation criteria.';
+  } else if (
+    lowerNote.includes('missed') ||
+    lowerNote.includes('overdue') ||
+    lowerNote.includes('pain') ||
+    lowerNote.includes('nausea') ||
+    note.includes('छूट') ||
+    note.includes('दर्द') ||
+    note.includes('उल्टी')
+  ) {
+    triageLevel = isHi
+      ? 'पीला (ध्यान दें - सक्रिय फॉलो-अप आवश्यक)'
+      : 'Amber (Follow-up Required)';
+    triageReasoning = isHi
+      ? 'नियमित अंतराल छूटने या परेशानी की सूचना मिली है; पूर्ण ड्रॉपआउट रोकने के लिए सक्रिय हस्तक्षेप आवश्यक है।'
+      : 'Missed interval or discomfort reported; requires active intervention to prevent complete dropout.';
+  } else if (isHi) {
+    triageLevel = 'हरा (सामान्य समुदाय प्रोटोकॉल)';
   }
 
   const applicableGuidelines = isMaternal
@@ -111,7 +145,27 @@ function generateDeterministicPlan(beneficiary: any, note: string, language: str
     ? [AUTHORITATIVE_GUIDELINES[3]]
     : [AUTHORITATIVE_GUIDELINES[4]];
 
-  const recommendedSteps = isMaternal
+  const recommendedSteps = isHi
+    ? isMaternal
+      ? [
+          'रक्तचाप (BP) की जांच करें और पैरों में सूजन की स्थिति दर्ज करें।',
+          'दैनिक आयरन फोलिक एसिड (IFA) और कैल्शियम की गोलियों के सेवन की पुष्टि करें।',
+          'आगामी प्रधानमंत्री सुरक्षित मातृत्व अभियान (PMSMA) दिवस पर पीएचसी चिकित्सा अधिकारी द्वारा जांच हेतु प्राथमिकता परिवहन तय करें।',
+          'परिवार को पोषण एवं खतरे के लक्षणों वाली द्विभाषी नागरिक पर्ची जारी करें।'
+        ]
+      : isChild
+      ? [
+          'सार्वभौमिक टीकाकरण अनुसूची के साथ एमसीपी / आरसीएच कार्ड की समीक्षा करें।',
+          'आगामी ग्राम स्वास्थ्य स्वच्छता एवं पोषण दिवस (VHSND) पर छूटी हुई MR-1 और विटामिन ए की खुराक के लिए तत्काल सत्र तय करें।',
+          'कुपोषण की जांच के लिए मध्य-ऊपरी बांह परिधि (MUAC) मापें।',
+          'टीकाकरण में झिझक और मौसमी प्रवास के कारण ड्रॉपआउट के प्रति अभिभावकों को जागरूक करें।'
+        ]
+      : [
+          'दवा सेवन की जांच करें और दवाओं के प्रति सहनशीलता का मूल्यांकन करें।',
+          'निक्षय पोषण योजना की ₹500/माह डीबीटी सहायता के लिए बैंक खाते की स्थिति सत्यापित करें।',
+          'नामित माइक्रोस्कोपी केंद्र (DMC) में बलगम संग्रह हेतु अपॉइंटमेंट तय करें।'
+        ]
+    : isMaternal
     ? [
         'Measure blood pressure and record presence/absence of pedal edema.',
         'Verify intake of daily Iron Folic Acid (IFA) and Calcium tablets.',
@@ -134,13 +188,15 @@ function generateDeterministicPlan(beneficiary: any, note: string, language: str
   const actions: any[] = [
     {
       id: `act-${Date.now()}-1`,
-      toolName: triageLevel.includes('Red') ? 'alert_phc_officer' : 'schedule_home_visit',
-      label: triageLevel.includes('Red') ? 'Escalate Alert to PHC Medical Officer' : 'Schedule Field Home Visit',
-      description: triageLevel.includes('Red')
-        ? 'Transmit high-risk alert with symptom checklist to Dr. PHC Medical Officer.'
-        : 'Lock in priority home visit in ASHA calendar within 48 hours.',
+      toolName: String(triageLevel).includes('Red') || String(triageLevel).includes('लाल') ? 'alert_phc_officer' : 'schedule_home_visit',
+      label: String(triageLevel).includes('Red') || String(triageLevel).includes('लाल')
+        ? (isHi ? 'पीएचसी चिकित्सा अधिकारी को आपातकालीन अलर्ट भेजें' : 'Escalate Alert to PHC Medical Officer')
+        : (isHi ? 'आशा कार्यकर्ता गृह भ्रमण तय करें' : 'Schedule Field Home Visit'),
+      description: String(triageLevel).includes('Red') || String(triageLevel).includes('लाल')
+        ? (isHi ? 'डॉ. पीएचसी चिकित्सा अधिकारी को खतरे के लक्षणों के साथ आपातकालीन अलर्ट प्रेषित करें।' : 'Transmit high-risk alert with symptom checklist to Dr. PHC Medical Officer.')
+        : (isHi ? '48 घंटों के भीतर आशा कैलेंडर में प्राथमिकता गृह भ्रमण दर्ज करें।' : 'Lock in priority home visit in ASHA calendar within 48 hours.'),
       parameters: {
-        urgency: triageLevel.includes('Red') ? 'HIGH' : 'NORMAL',
+        urgency: String(triageLevel).includes('Red') || String(triageLevel).includes('लाल') ? 'HIGH' : 'NORMAL',
         beneficiaryId: beneficiary.id,
         suggestedDate: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0]
       },
@@ -150,8 +206,10 @@ function generateDeterministicPlan(beneficiary: any, note: string, language: str
     {
       id: `act-${Date.now()}-2`,
       toolName: 'generate_bilingual_slip',
-      label: 'Generate Bilingual Beneficiary Action Slip',
-      description: `Create official clear non-diagnostic follow-up instructions in ${language.toUpperCase()} & English with QR verification.`,
+      label: isHi ? 'द्विभाषी नागरिक देखभाल पर्ची जारी करें' : 'Generate Bilingual Beneficiary Action Slip',
+      description: isHi
+        ? `क्यूआर सत्यापन के साथ हिन्दी एवं अंग्रेजी में आधिकारिक गैर-नैदानिक निर्देश पर्ची तैयार करें।`
+        : `Create official clear non-diagnostic follow-up instructions in ${language.toUpperCase()} & English with QR verification.`,
       parameters: {
         language,
         summaryPoints: recommendedSteps.slice(0, 3)
@@ -162,8 +220,10 @@ function generateDeterministicPlan(beneficiary: any, note: string, language: str
     {
       id: `act-${Date.now()}-3`,
       toolName: 'sync_abdm_careplan',
-      label: 'Sync ABDM CarePlan & xSpan CareHub Record',
-      description: 'Package encounter into FHIR-compliant CarePlan resource with mock ABHA identifier.',
+      label: isHi ? 'ABDM केयर-प्लान एवं केयर-हब रिकॉर्ड सिंक करें' : 'Sync ABDM CarePlan & xSpan CareHub Record',
+      description: isHi
+        ? 'आभा (ABHA) पहचानकर्ता के साथ परामर्श को FHIR-अनुपालन केयर-प्लान संसाधन में सुरक्षित करें।'
+        : 'Package encounter into FHIR-compliant CarePlan resource with mock ABHA identifier.',
       parameters: {
         abhaId: beneficiary.abhaId || '91-4829-1029-4412',
         encounterCategory: beneficiary.category
