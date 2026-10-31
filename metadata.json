@@ -1,0 +1,7 @@
+{
+  "name": "SevaSetu AI — Bharat Agentic Frontline Care DPG",
+  "description": "An agentic Digital Public Good empowering India's 1M+ ASHA workers and rural citizens with source-grounded non-diagnostic follow-up care, immunization tracking, and auditable entitlement navigation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

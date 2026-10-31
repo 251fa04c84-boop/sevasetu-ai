@@ -1,0 +1,45 @@
+{
+  "agent_id": "sevasetu-bharat-frontline-agent",
+  "name": "SevaSetu Community Care Navigator",
+  "version": "1.2.0",
+  "runtime": "AgentFoundry-2026",
+  "model": "gemini-3.8-flash",
+  "role": "Frontline Public Health Workflow Assistant",
+  "governance": {
+    "human_in_the_loop_required": true,
+    "non_diagnostic_boundary": true,
+    "authoritative_sources_enforced": [
+      "MoHFW Universal Immunization Programme (UIP)",
+      "PMSMA Antenatal Care Guidelines",
+      "ICDS Poshan 2.0 Protocol",
+      "NTEP Nikshay Direct Observation",
+      "AB-PMJAY Universal 70+ Entitlement"
+    ]
+  },
+  "tools": [
+    {
+      "name": "alert_phc_officer",
+      "type": "webhook_dispatch",
+      "requires_approval": true,
+      "urgency_levels": ["ROUTINE", "ATTENTION", "EMERGENCY_RED"]
+    },
+    {
+      "name": "schedule_home_visit",
+      "type": "calendar_roster",
+      "requires_approval": true,
+      "calendar_id": "asha_vhsnd_schedule"
+    },
+    {
+      "name": "generate_bilingual_slip",
+      "type": "document_generator",
+      "requires_approval": true,
+      "supported_languages": ["en", "hi", "ta", "te", "bn", "mr"]
+    },
+    {
+      "name": "sync_abdm_careplan",
+      "type": "fhir_careplan_bridge",
+      "requires_approval": false,
+      "sponsor_integration": "xSpan CareHub / ABDM"
+    }
+  ]
+}
