@@ -18,7 +18,9 @@ import {
   Sparkles,
   Server,
   AlertCircle,
-  Clock
+  Clock,
+  FileArchive,
+  Github
 } from 'lucide-react';
 import { syncWithCareHub } from '../services/api';
 
@@ -173,6 +175,15 @@ export const HackathonComplianceView: React.FC = () => {
     downloadAnchor.remove();
   };
 
+  const downloadRepoZip = () => {
+    const a = document.createElement('a');
+    a.href = '/sevasetu-ai.zip';
+    a.download = 'sevasetu-ai.zip';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
   const testCareHubIntegration = async () => {
     setIsTestingCareHub(true);
     setCareHubTestStatus('Testing local FHIR R4 schema validation at /api/carehub-sync...');
@@ -261,6 +272,43 @@ export const HackathonComplianceView: React.FC = () => {
               ))}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* Upgraded Source Code ZIP Download & GitHub Card */}
+      <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/60 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 shadow-xs">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <FileArchive className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            <h3 className="font-bold text-base text-slate-900 dark:text-white">
+              Upgraded Repository Archive (.ZIP)
+            </h3>
+            <span className="text-[11px] font-mono text-emerald-800 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/60 px-2 py-0.5 rounded">
+              ~2.9 MB · v1.0.0-bharat2026
+            </span>
+          </div>
+          <p className="text-xs text-slate-600 dark:text-slate-400 max-w-xl leading-relaxed">
+            Directly download the complete codebase including React UI, full-stack Express server, MoHFW guidelines, and CI test suite. All video demonstration cards removed.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3 shrink-0">
+          <button
+            onClick={downloadRepoZip}
+            className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 rounded-lg shadow-sm transition-colors cursor-pointer"
+          >
+            <Download className="w-4 h-4" />
+            <span>Download ZIP</span>
+          </button>
+          <a
+            href="https://github.com/251fa04c84-boop/sevasetu-ai"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750 rounded-lg transition-colors cursor-pointer"
+          >
+            <Github className="w-4 h-4" />
+            <span>Open GitHub</span>
+            <ExternalLink className="w-3 h-3 text-slate-400" />
+          </a>
         </div>
       </div>
 

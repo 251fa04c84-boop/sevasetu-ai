@@ -6,6 +6,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI, Type } from '@google/genai';
@@ -198,9 +199,27 @@ function generateDeterministicPlan(beneficiary: any, note: string, language: str
   };
 }
 
-app.get('/download-zip', (req, res) => {
-  const zipPath = path.join(__dirname, 'sevasetu-ai.zip');
-  res.download(zipPath, 'sevasetu-ai.zip');
+// Repository Source Code ZIP Download endpoint for direct mobile and desktop access
+app.get(['/download-zip', '/sevasetu-ai.zip'], (req, res) => {
+  const rootZip = path.join(__dirname, 'sevasetu-ai.zip');
+  const publicZip = path.join(__dirname, 'public', 'sevasetu-ai.zip');
+  const targetZip = fs.existsSync(rootZip) ? rootZip : (fs.existsSync(publicZip) ? publicZip : null);
+
+  if (!targetZip) {
+    return res.status(404).json({ error: 'Repository zip bundle not found. Please contact support.' });
+  }
+
+  res.setHeader('Content-Type', 'application/zip');
+  res.setHeader('Content-Disposition', 'attachment; filename="sevasetu-ai.zip"');
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+
+  const stat = fs.statSync(targetZip);
+  res.setHeader('Content-Length', stat.size);
+
+  const readStream = fs.createReadStream(targetZip);
+  readStream.pipe(res);
 });
 
 // API Routes

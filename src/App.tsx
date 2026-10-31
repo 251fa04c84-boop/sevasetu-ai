@@ -12,6 +12,7 @@ import { ImpactDashboardView } from './components/ImpactDashboardView';
 import { HackathonComplianceView } from './components/HackathonComplianceView';
 import { BiLingualCareSlipModal } from './components/BiLingualCareSlipModal';
 import { NewEncounterModal } from './components/NewEncounterModal';
+import { DownloadZipModal } from './components/DownloadZipModal';
 import { INITIAL_BENEFICIARIES } from './data/mockBeneficiaries';
 import { Beneficiary, Language, AuditRecord, ImpactTelemetry, AgentAnalysisPlan } from './types';
 import { fetchAuditLogs, fetchImpactTelemetry, checkServerHealth } from './services/api';
@@ -23,6 +24,7 @@ export default function App() {
   const [selectedBeneficiary, setSelectedBeneficiary] = useState<Beneficiary>(INITIAL_BENEFICIARIES[0]);
   const [activePlanForCareSlip, setActivePlanForCareSlip] = useState<AgentAnalysisPlan | null>(null);
   const [isEncounterModalOpen, setIsEncounterModalOpen] = useState(false);
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const [auditLogs, setAuditLogs] = useState<AuditRecord[]>([]);
   const [telemetry, setTelemetry] = useState<ImpactTelemetry>({
     totalBeneficiariesTracked: 1420,
@@ -84,6 +86,7 @@ export default function App() {
         onLanguageChange={setLanguage}
         onNewEncounter={() => setIsEncounterModalOpen(true)}
         isOnline={isOnline}
+        onOpenDownloadModal={() => setIsDownloadModalOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -138,10 +141,16 @@ export default function App() {
         onStartEncounter={handleStartCustomEncounter}
       />
 
+      {/* Upgraded Source Code ZIP Download Modal */}
+      <DownloadZipModal
+        isOpen={isDownloadModalOpen}
+        onClose={() => setIsDownloadModalOpen(false)}
+      />
+
       {/* Quiet Clean Footer (Zero telemetry tickers, plain legal/DPG attribution) */}
       <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-6 text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="font-semibold text-slate-700 dark:text-slate-300">
               SevaSetu AI
             </span>
@@ -149,6 +158,13 @@ export default function App() {
             <span>Bharat Agentic-AI Digital Public Good</span>
             <span aria-hidden="true">·</span>
             <span>Apache-2.0 Open Source</span>
+            <span aria-hidden="true">·</span>
+            <button
+              onClick={() => setIsDownloadModalOpen(true)}
+              className="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline cursor-pointer"
+            >
+              Download Repo (.zip)
+            </button>
           </div>
           <div className="text-center sm:text-right text-[11px] text-slate-400">
             <span>Code for a Billion 2026 · Code for India · AgentFoundry IDE</span>
