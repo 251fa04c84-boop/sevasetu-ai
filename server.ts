@@ -198,6 +198,11 @@ function generateDeterministicPlan(beneficiary: any, note: string, language: str
   };
 }
 
+app.get('/download-zip', (req, res) => {
+  const zipPath = path.join(__dirname, 'sevasetu-ai.zip');
+  res.download(zipPath, 'sevasetu-ai.zip');
+});
+
 // API Routes
 app.get('/api/health', (req, res) => {
   res.json({
