@@ -48,6 +48,19 @@ export interface PlannedToolAction {
   executionTimestamp?: string;
 }
 
+export interface AgentInvestigationStep {
+  id: string;
+  stepNumber: number;
+  title: string;
+  phase: 'INTAKE' | 'CONTEXT_FUSION' | 'MOHFW_RETRIEVAL' | 'SAFETY_GUARDRAIL' | 'RISK_TRIAGE' | 'CARE_PLANNING' | 'TOOL_STAGING' | 'HUMAN_GATE' | 'TOOL_EXECUTION' | 'OUTCOME_VERIFY' | 'ROSTER_SYNC' | 'SHA256_SEAL';
+  status: 'COMPLETED' | 'BLOCKED_APPROVAL' | 'EXECUTING' | 'PENDING';
+  thought: string;
+  evidenceCited: string[];
+  actionDispatched?: string;
+  actionOutput?: any;
+  timestamp: string;
+}
+
 export interface AgentAnalysisPlan {
   beneficiaryId: string;
   beneficiaryName: string;
@@ -60,6 +73,7 @@ export interface AgentAnalysisPlan {
   applicableGuidelines: GuidelineCitation[];
   recommendedSteps: string[];
   actions: PlannedToolAction[];
+  investigationStream?: AgentInvestigationStep[];
   generatedAt: string;
   confidenceScore: number;
   isAiGenerated: true;
@@ -94,4 +108,18 @@ export interface ImpactTelemetry {
   bilingualSlipsGenerated: number;
   abdmRecordsSynced: number;
   offlineActionsBuffered: number;
+}
+
+export interface PostEncounterAuditReport {
+  id: string;
+  generatedAt: string;
+  beneficiary: Beneficiary;
+  triageLevel: string;
+  intakeObservation: string;
+  clinicalRootCause: string;
+  guidelinesCited: GuidelineCitation[];
+  authorizedBy: string;
+  executedActions: PlannedToolAction[];
+  sha256IntegrityHash: string;
+  abdmCarePlanId: string;
 }
