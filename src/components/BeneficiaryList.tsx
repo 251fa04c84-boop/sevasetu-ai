@@ -1,12 +1,22 @@
+import ashaWorkerHeroImg from '../assets/images/asha_worker_field_tablet_1793372673991.jpg';
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import React, { useState } from 'react';
-import { Search, UserCheck, AlertTriangle, Clock, ArrowRight, Shield, HeartPulse, UserPlus } from 'lucide-react';
 import { Beneficiary, Language } from '../types';
-import { getTranslations } from '../i18n/translations';
+import { TRANSLATIONS } from '../i18n/translations';
+import {
+  Search,
+  UserPlus,
+  AlertTriangle,
+  Clock,
+  UserCheck,
+  ArrowRight,
+  ShieldAlert,
+  Building2
+} from 'lucide-react';
 
 interface BeneficiaryListProps {
   beneficiaries: Beneficiary[];
@@ -25,53 +35,65 @@ export const BeneficiaryList: React.FC<BeneficiaryListProps> = ({
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [riskFilter, setRiskFilter] = useState('All');
 
-  const t = getTranslations(language);
-
-  const getCategoryLabel = (cat: string) => {
-    if (cat.includes('Maternal')) return t.maternalCategory;
-    if (cat.includes('Immunization')) return t.childCategory;
-    if (cat.includes('Tuberculosis') || cat.includes('Nikshay')) return t.tbCategory;
-    return t.seniorCategory;
-  };
-
-  const getRiskLabel = (risk: string) => {
-    if (risk === 'High Risk') return t.riskHigh;
-    if (risk === 'Attention') return t.riskAttention;
-    return t.riskStandard;
-  };
+  const t = TRANSLATIONS[language] || TRANSLATIONS.en;
 
   const filtered = beneficiaries.filter((b) => {
     const matchesSearch =
       b.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       b.village.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (b.abhaId && b.abhaId.includes(searchTerm));
+      (b.abhaId && b.abhaId.toLowerCase().includes(searchTerm.toLowerCase()));
+
     const matchesCategory =
-      categoryFilter === 'All' || b.category.includes(categoryFilter);
+      categoryFilter === 'All' || b.category === categoryFilter;
+
     const matchesRisk =
       riskFilter === 'All' || b.riskStatus === riskFilter;
+
     return matchesSearch && matchesCategory && matchesRisk;
   });
 
+  const getRiskLabel = (status: Beneficiary['riskStatus']) => {
+    switch (status) {
+      case 'High Risk':
+        return t.riskHigh;
+      case 'Attention':
+        return t.riskAttention;
+      default:
+        return t.riskStandard;
+    }
+  };
+
+  const getCategoryLabel = (cat: Beneficiary['category']) => {
+    switch (cat) {
+      case 'Maternal':
+        return t.maternalCategory;
+      case 'Immunization':
+        return t.childCategory;
+      case 'Tuberculosis':
+        return t.tbCategory;
+      case 'Senior':
+        return t.seniorCategory;
+      default:
+        return cat;
+    }
+  };
+
   return (
     <div className="space-y-6">
-      {/* Editorial Hero Banner */}
-      <div className="bg-slate-900 text-white rounded-2xl overflow-hidden border border-slate-800 shadow-sm">
+      {/* Hero Banner with Official Frontline Visual */}
+      <div className="rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 shadow-sm text-white">
         <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch">
-          <div className="lg:col-span-7 p-6 sm:p-8 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs uppercase tracking-wider text-emerald-400 font-bold">
-                  {t.appSubtitle}
-                </span>
-                <span className="text-[11px] text-slate-400 font-mono">
-                  · Shivgarh Cohort
-                </span>
+          <div className="lg:col-span-7 p-6 sm:p-8 flex flex-col justify-between space-y-6">
+            <div className="space-y-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                <Building2 className="w-3.5 h-3.5" />
+                <span>National Health Mission (NHM) · Digital Public Good</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-3 text-balance">
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white leading-snug">
                 {t.registryHeroTitle}
-              </h1>
-              <p className="text-sm text-slate-300 leading-relaxed mb-6 max-w-xl">
-                {t.registryHeroSubtitle}
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                {t.registryHeroSub}
               </p>
             </div>
 
@@ -96,10 +118,15 @@ export const BeneficiaryList: React.FC<BeneficiaryListProps> = ({
 
           <div className="lg:col-span-5 relative min-h-[220px] bg-slate-800">
             <img
-              src="/src/assets/images/asha_worker_field_tablet_1793372673991.jpg"
+              src={ashaWorkerHeroImg}
               alt="ASHA worker using digital health tablet in rural India"
               referrerPolicy="no-referrer"
               className="w-full h-full object-cover object-center"
+              onError={(e) => {
+                const target = e.currentTarget;
+                target.onerror = null;
+                target.src = 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=1200&q=80';
+              }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent flex items-end p-4">
               <span className="text-xs text-slate-300 font-medium">
@@ -180,7 +207,6 @@ export const BeneficiaryList: React.FC<BeneficiaryListProps> = ({
               {filtered.map((b) => {
                 const isHigh = b.riskStatus === 'High Risk';
                 const isAttention = b.riskStatus === 'Attention';
-
                 return (
                   <tr
                     key={b.id}
@@ -194,23 +220,19 @@ export const BeneficiaryList: React.FC<BeneficiaryListProps> = ({
                         </span>
                       </div>
                     </td>
-
                     <td className="py-3.5 px-4 whitespace-nowrap">
                       <span>{b.age} yrs</span>
                       <span className="text-slate-400"> · {b.gender}</span>
                     </td>
-
                     <td className="py-3.5 px-4 whitespace-nowrap">
                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                         {getCategoryLabel(b.category)}
                       </span>
                     </td>
-
                     <td className="py-3.5 px-4">
                       <div className="text-slate-900 dark:text-slate-100">{b.village}</div>
                       <div className="text-[11px] text-slate-400">{b.phcCenter}</div>
                     </td>
-
                     <td className="py-3.5 px-4 whitespace-nowrap">
                       <span
                         className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-semibold border ${
@@ -227,7 +249,6 @@ export const BeneficiaryList: React.FC<BeneficiaryListProps> = ({
                         <span>{getRiskLabel(b.riskStatus)}</span>
                       </span>
                     </td>
-
                     <td className="py-3.5 px-4 max-w-xs">
                       <div className="truncate text-[11px] text-slate-600 dark:text-slate-400">
                         {b.activeFollowUps && b.activeFollowUps[0]
@@ -235,7 +256,6 @@ export const BeneficiaryList: React.FC<BeneficiaryListProps> = ({
                           : 'Routine schedule on track'}
                       </div>
                     </td>
-
                     <td className="py-3.5 px-4 text-right whitespace-nowrap">
                       <button
                         onClick={() => onSelectBeneficiary(b)}
